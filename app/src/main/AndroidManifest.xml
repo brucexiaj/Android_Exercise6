@@ -15,5 +15,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="es.source.code.activity.MainScreen"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="scos.intent.action.SCOSMAIN" />
+                <category android:name="scos.intent.category.SCOSLAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

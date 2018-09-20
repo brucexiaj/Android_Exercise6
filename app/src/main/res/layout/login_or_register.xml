@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_marginTop="150dp"
+        android:layout_width="200dp"
+        android:layout_height="10dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:visibility="invisible"
+            android:id="@+id/login_progress"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="340dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="登录名"
+            android:gravity="center"/>
+        <EditText
+            android:layout_marginLeft="2dp"
+            android:layout_width="258dp"
+            android:layout_height="match_parent"
+            android:id="@+id/login_name_edittext"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="340dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:text="密码"
+            android:gravity="center_horizontal"/>
+        <EditText
+            android:layout_marginLeft="2dp"
+            android:layout_width="258dp"
+            android:inputType="textPassword"
+            android:layout_height="match_parent"
+            android:id="@+id/login_pw_edittext"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="340dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+        <Button
+            android:layout_marginLeft="20dp"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:text="登录"
+            android:id="@+id/login_button"
+            android:background="#00ff00"/>
+        <Button
+            android:layout_marginLeft="20dp"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:text="返回"
+            android:id="@+id/return_button"
+            android:background="#00ff00"/>
+    </LinearLayout>
+
+
+
+</LinearLayout>

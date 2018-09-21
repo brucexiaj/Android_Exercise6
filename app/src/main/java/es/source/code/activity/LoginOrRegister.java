@@ -85,7 +85,7 @@ public class LoginOrRegister extends Activity {
         });
     }
 
-    //登录button监听器
+    //返回button监听器
     private static void returnButtonListener(final Context context, Button button) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override

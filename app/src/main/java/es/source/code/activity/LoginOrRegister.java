@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import es.source.code.R;
+import es.source.code.model.User;
 
 public class LoginOrRegister extends Activity {
     private Logger log = Logger.getLogger("LoginOrRegister");
@@ -28,8 +29,10 @@ public class LoginOrRegister extends Activity {
         EditText pwText = findViewById(R.id.login_pw_edittext);
         Button loginButton = findViewById(R.id.login_button);
         Button returnButton = findViewById(R.id.return_button);
+        Button registerButton = findViewById(R.id.register_button);
         ProgressBar pb = findViewById(R.id.login_progress);
         this.loginButtonListener(this, loginButton, nameText, pwText, pb, log);
+        this.registerButtonListener(this, registerButton, nameText, pwText);
         this.returnButtonListener(this, returnButton);
     }
 
@@ -59,6 +62,12 @@ public class LoginOrRegister extends Activity {
                         return;
                     }
                 }
+                //存入user
+                final User loginUser = new User();
+                loginUser.setOldUser(true);
+                loginUser.setPassword(password);
+                loginUser.setUserName(name);
+                //进度条
                 pb.setVisibility(View.VISIBLE);
                 new Thread(new Runnable() {
                     @Override
@@ -74,6 +83,9 @@ public class LoginOrRegister extends Activity {
                             //跳到MainScreen
                             Intent intent = new Intent(context, MainScreen.class);
                             intent.putExtra("InfoFromLogin", "LoginSuccess");
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("userInfo", loginUser);
+                            intent.putExtras(bundle);
                             context.startActivity(intent);//  开始跳转
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -93,6 +105,43 @@ public class LoginOrRegister extends Activity {
                 //跳到MainScreen
                 Intent intent = new Intent(context, MainScreen.class);
                 intent.putExtra("InfoFromLogin", "Return");
+                context.startActivity(intent);//  开始跳转
+            }
+        });
+    }
+
+    //注册button监听器
+    private static void registerButtonListener(final Context context, Button button,
+                                               final EditText nameText, final EditText pwText) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //检测用户名和密码
+                String name = nameText.getText().toString();
+                String password = pwText.getText().toString();
+                //校验输入
+                if (null != name) {
+                    if (!Pattern.matches(pattern, name)) {
+                        nameText.setError("输入内容不符合规则");
+                        return;
+                    }
+                }
+                if (null != password) {
+                    if (!Pattern.matches(pattern, password)) {
+                        pwText.setError("输入内容不符合规则");
+                        return;
+                    }
+                }
+                //存入User
+                User registerUser = new User();
+                registerUser.setUserName(name);
+                registerUser.setPassword(password);
+                registerUser.setOldUser(false);
+                Intent intent = new Intent(context, MainScreen.class);
+                intent.putExtra("InfoFromLogin", "RegisterSuccess");
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("userInfo", registerUser);
+                intent.putExtras(bundle);
                 context.startActivity(intent);//  开始跳转
             }
         });

@@ -32,6 +32,7 @@ public class MainScreen extends Activity {
     private String navigateNamesLess[] = {"登录/注册", "帮助"};
     private static final String LOGIN_OR_REGISTER = "登录/注册";
     private static final String MAKE_ORDER = "点菜";
+    private static final String ORDER = "订单";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,9 +107,15 @@ public class MainScreen extends Activity {
                     Intent loginActivity = new Intent(MainScreen.this, LoginOrRegister.class);
                     MainScreen.this.startActivity(loginActivity);//  开始跳转
                 }
+                //到FoodView
                 if (MAKE_ORDER.equals(navigateNames[0]) && 0 == position) {
                     Intent foodViewActivity = new Intent(MainScreen.this, FoodView.class);
                     MainScreen.this.startActivity(foodViewActivity);//  开始跳转
+                }
+                //到FoodOrderView
+                if (ORDER.equals(navigateNames[01]) && 1 == position) {
+                    Intent foodOrderViewActivity = new Intent(MainScreen.this, FoodOrderView.class);
+                    MainScreen.this.startActivity(foodOrderViewActivity);//  开始跳转
                 }
             }
         });

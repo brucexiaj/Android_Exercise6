@@ -44,6 +44,10 @@
             android:name="es.source.code.activity.FoodOrderView">
         </activity>
 
+        <activity
+            android:name="es.source.code.activity.FoodDetailed">
+        </activity>
+
     </application>
 
     <permission android:name="scos.permission.ACCESSSCOS"

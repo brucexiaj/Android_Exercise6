@@ -1,6 +1,7 @@
 package es.source.code.activity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import java.util.logging.Logger;
 
 import es.source.code.R;
+import es.source.code.model.User;
 import es.source.code.util.MyFragment;
 
 public class FoodOrderView extends AppCompatActivity {
@@ -26,6 +28,8 @@ public class FoodOrderView extends AppCompatActivity {
     private Logger log = Logger.getLogger("FoodOrderView");
     private final String[] columns = {"未下单菜", "已下单菜"};
     private MyPagerAdapter myPagerAdapter;
+    private User user = new User();
+    private String infoFromFoodView = "unOrdered";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,28 +41,18 @@ public class FoodOrderView extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         viewPager.setAdapter(myPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
-//        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-//            @Override
-//            public void onTabSelected(TabLayout.Tab tab) {
-//                //Toast.makeText(FoodOrderView.this, tab.getText(), Toast.LENGTH_SHORT).show();
-//                if ("未下单菜".equals(tab.getText())) {
-//                    View view = LayoutInflater.from(FoodOrderView.this).inflate(R.layout.food_order_view_item, null);
-//                    ListView listView = view.findViewById(R.id.food_order_view_listview);
-//                    Toast.makeText(FoodOrderView.this, "h"+(listView==null), Toast.LENGTH_SHORT).show();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onTabUnselected(TabLayout.Tab tab) {
-//
-//            }
-//
-//            @Override
-//            public void onTabReselected(TabLayout.Tab tab) {
-//
-//            }
-//        });
+        tabLayout.getTabAt(1).select();
+        //获取MainScreen传递过来的User信息
+        Intent intent = getIntent();
+        user = (User)intent.getSerializableExtra("userInfoFromMainScreen");
+        //获取FoodView传来的信息
+        String tempInfo = intent.getStringExtra("infoFromFoodView");
+
+        if (null != tempInfo && !"".equals(tempInfo)) {
+            infoFromFoodView = tempInfo;
+        }
+        tabLayout.getTabAt("ordered".equals(infoFromFoodView) ? 1 : 0).select();
+
     }
 
     class MyPagerAdapter extends FragmentPagerAdapter {

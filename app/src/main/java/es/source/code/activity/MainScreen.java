@@ -33,6 +33,7 @@ public class MainScreen extends Activity {
     private static final String LOGIN_OR_REGISTER = "登录/注册";
     private static final String MAKE_ORDER = "点菜";
     private static final String ORDER = "订单";
+    private User user = new User();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,6 @@ public class MainScreen extends Activity {
         GridView gridView = findViewById(R.id.main_screen_gradview);
 
         //处理从其它的Activity传递过来的值
-        User user = new User();
         Intent intent = getIntent();
         if (null != intent) {
             //获取SCOSEntry传过来的值
@@ -110,11 +110,13 @@ public class MainScreen extends Activity {
                 //到FoodView
                 if (MAKE_ORDER.equals(navigateNames[0]) && 0 == position) {
                     Intent foodViewActivity = new Intent(MainScreen.this, FoodView.class);
+                    foodViewActivity.putExtra("userInfoFromMainScreen", user);
                     MainScreen.this.startActivity(foodViewActivity);//  开始跳转
                 }
                 //到FoodOrderView
                 if (ORDER.equals(navigateNames[01]) && 1 == position) {
                     Intent foodOrderViewActivity = new Intent(MainScreen.this, FoodOrderView.class);
+                    foodOrderViewActivity.putExtra("userInfoFromMainScreen", user);
                     MainScreen.this.startActivity(foodOrderViewActivity);//  开始跳转
                 }
             }

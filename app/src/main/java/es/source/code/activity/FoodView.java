@@ -1,6 +1,7 @@
 package es.source.code.activity;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import java.util.logging.Logger;
 
 import es.source.code.R;
+import es.source.code.model.User;
 import es.source.code.util.MyFragment;
 
 public class FoodView extends AppCompatActivity {
@@ -27,7 +29,7 @@ public class FoodView extends AppCompatActivity {
     private Logger log = Logger.getLogger("FoodView");
     private final String[] columns = {"冷菜", "热菜", "海鲜", "饮料"};
     private MyPagerAdapter myPagerAdapter;
-
+    private User user = new User();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,10 @@ public class FoodView extends AppCompatActivity {
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         viewPager.setAdapter(myPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
+        //获取MainScreen传递过来的User信息
+        Intent intent = getIntent();
+        user = (User)intent.getSerializableExtra("userInfoFromMainScreen");
+        log.info(">>>>>>>>>user name from mainScreen:"+user.getUserName());
     }
 
     //添加ActionBar
@@ -53,10 +59,18 @@ public class FoodView extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.ordered_food:
-                Toast.makeText(this, "已点菜品", Toast.LENGTH_SHORT).show();
+                //进入未下单菜页面
+                Intent intentUnOrdered = new Intent(FoodView.this, FoodOrderView.class);
+                intentUnOrdered.putExtra("infoFromFoodView", "unOrdered");
+                intentUnOrdered.putExtra("userInfoFromMainScreen", user);//取userInfoFromMainScreen是为了和MainScreen传来的信息统一
+                startActivity(intentUnOrdered);
                 return true;
             case R.id.view_order:
-                Toast.makeText(this, "查看订单", Toast.LENGTH_SHORT).show();
+                //进入已下单菜页面
+                Intent intentOrdered = new Intent(FoodView.this, FoodOrderView.class);
+                intentOrdered.putExtra("infoFromFoodView", "ordered");
+                intentOrdered.putExtra("userInfoFromMainScreen", user);//取userInfoFromMainScreen是为了和MainScreen传来的信息统一
+                startActivity(intentOrdered);
                 return true;
             case R.id.call_service:
                 Toast.makeText(this, "呼叫服务", Toast.LENGTH_SHORT).show();

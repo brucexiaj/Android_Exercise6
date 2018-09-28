@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import es.source.code.R;
 import es.source.code.model.User;
+import es.source.code.util.SharedPreferenceUtil;
 
 public class MainScreen extends Activity {
     private Logger log = Logger.getLogger("MainScreen");
@@ -100,8 +101,8 @@ public class MainScreen extends Activity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainScreen.this, navigateNames[position],
-                        Toast.LENGTH_SHORT).show();
+//                Toast.makeText(MainScreen.this, navigateNames[position],
+//                        Toast.LENGTH_SHORT).show();
                 int positionOfLogin = LOGIN_OR_REGISTER.equals(navigateNames[0]) ? 0 : 2;
                 if (positionOfLogin == position) { //登录注册
                     Intent loginActivity = new Intent(MainScreen.this, LoginOrRegister.class);

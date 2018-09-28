@@ -23,6 +23,7 @@
             android:text="价格"
             android:focusable="false" />
         <Button
+
             android:layout_marginLeft="20dp"
             android:layout_width="80dp"
             android:layout_height="match_parent"

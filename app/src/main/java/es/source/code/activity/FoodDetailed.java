@@ -16,6 +16,8 @@ import android.widget.Toast;
 import java.util.logging.Logger;
 
 import es.source.code.R;
+import es.source.code.model.Food;
+import es.source.code.util.SharedPreferenceUtil;
 
 public class FoodDetailed extends Activity {
     private Logger log = Logger.getLogger("FoodDetailed");
@@ -26,15 +28,15 @@ public class FoodDetailed extends Activity {
     private TextView textViewFoodPrice;
     private ImageView imageViewFoodPhoto;
     private Button buttonUnsubscribe;
-    private String foodNames[];
-    private float foodPrices[];
-    private int foodPhotos[];
-    private int foodStates[];
+
+    private SharedPreferenceUtil spUtil;
+    private Food food = new Food();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.food_detailed);
+        spUtil = new SharedPreferenceUtil(FoodDetailed.this);
 
         textViewFoodName = findViewById(R.id.text_view_food_name_detailed);
         textViewFoodPrice = findViewById(R.id.text_view_food_price_detailed);
@@ -44,25 +46,42 @@ public class FoodDetailed extends Activity {
         //获取FoodView传来的参数
         Intent intent = getIntent();
         currentFoodIndex = intent.getIntExtra("foodIndex", 0);
+        food = spUtil.getFood(currentFoodIndex);
+        foodTotalNums = spUtil.getFoodTotalNum();
 
-        foodNames = intent.getStringArrayExtra("foodNames");
-        foodPrices = intent.getFloatArrayExtra("foodPrices");
-        foodPhotos = intent.getIntArrayExtra("foodPhotos");
-        foodStates = intent.getIntArrayExtra("foodStates");
-        foodTotalNums = foodNames.length;
+
 
 
         //根据参数改变组件上的文字
-        textViewFoodName.setText(foodNames[currentFoodIndex]);
-        textViewFoodPrice.setText(new Float(foodPrices[currentFoodIndex]).toString());
-        imageViewFoodPhoto.setImageResource(foodPhotos[currentFoodIndex]);
-        if (0 ==  foodStates[currentFoodIndex]) {
+        textViewFoodName.setText(food.getFoodName());
+        textViewFoodPrice.setText(String.valueOf(food.getFoodPrice()));
+        imageViewFoodPhoto.setImageResource(food.getFoodPhoto());
+        if (0 ==  food.getFoodState()) {
             buttonUnsubscribe.setText("点菜");
             buttonUnsubscribe.setBackgroundColor(Color.GREEN);
         } else {
             buttonUnsubscribe.setText("退点");
             buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
         }
+
+        //点菜或者退点按钮的监听器
+        buttonUnsubscribe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                food = spUtil.getFood(currentFoodIndex);
+                if (0 ==  food.getFoodState()) {
+                    spUtil.updateFoodState(food.getFoodIndex(), 1);
+                    buttonUnsubscribe.setText("退点");
+                    buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
+                    Toast.makeText(FoodDetailed.this, "点菜成功", Toast.LENGTH_LONG).show();;
+                } else {
+                    spUtil.updateFoodState(food.getFoodIndex(), 0);
+                    buttonUnsubscribe.setText("点菜");
+                    buttonUnsubscribe.setBackgroundColor(Color.GREEN);
+                    Toast.makeText(FoodDetailed.this, "退点成功", Toast.LENGTH_LONG).show();;
+                }
+            }
+        });
 
         //向左侧滑动监听器
         LinearLayout linearLayout = findViewById(R.id.layout_food_detailed);
@@ -94,10 +113,11 @@ public class FoodDetailed extends Activity {
                             }
                             currentFoodIndex++;
                         }
-                        textViewFoodName.setText(foodNames[currentFoodIndex]);
-                        textViewFoodPrice.setText(new Float(foodPrices[currentFoodIndex]).toString());
-                        imageViewFoodPhoto.setImageResource(foodPhotos[currentFoodIndex]);
-                        if (0 ==  foodStates[currentFoodIndex]) {
+                        Food currentFood = spUtil.getFood(currentFoodIndex);
+                        textViewFoodName.setText(currentFood.getFoodName());
+                        textViewFoodPrice.setText(String.valueOf(currentFood.getFoodPrice()));
+                        imageViewFoodPhoto.setImageResource(currentFood.getFoodPhoto());
+                        if (0 ==  currentFood.getFoodState()) {
                             buttonUnsubscribe.setText("点菜");
                             buttonUnsubscribe.setBackgroundColor(Color.GREEN);
                         } else {

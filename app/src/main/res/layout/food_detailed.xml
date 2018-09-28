@@ -13,6 +13,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="false"
             android:id="@+id/image_view_food_detail"/>
     </LinearLayout>
 
@@ -26,11 +27,13 @@
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:text="菜名"
+            android:focusable="false"
             android:id="@+id/text_view_food_name_detailed" />
         <TextView
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:text="菜价"
+            android:focusable="false"
             android:id="@+id/text_view_food_price_detailed" />
     </LinearLayout>
 
@@ -42,6 +45,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="false"
             android:hint="请输入备注"
             android:gravity="center_horizontal"/>
     </LinearLayout>
@@ -55,6 +59,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:focusable="false"
             android:text="退点"
             android:id="@+id/button_unsubscribe_food_detail"
             android:background="#0000ff"

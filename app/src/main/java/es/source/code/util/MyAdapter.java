@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import es.source.code.R;
+import es.source.code.model.Food;
 
 public class MyAdapter extends BaseAdapter {
     List<Map<String, Object>> list;
@@ -22,6 +23,7 @@ public class MyAdapter extends BaseAdapter {
     String activityName = "FoodView";
     String location = "0";
     private Logger log = Logger.getLogger("MyAdapter");
+    private SharedPreferenceUtil spUtil;
 
 
     public MyAdapter(List<Map<String, Object>> list, Context context, String activityName, String location) {
@@ -49,7 +51,9 @@ public class MyAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View view, ViewGroup viewGroup) {
         log.info(">>>>>>>>>getView");
+        spUtil = new SharedPreferenceUtil(context);
         final FoodViewItem foodViewItem;
+        Food food = spUtil.getFood(position);
         //点菜页面
         if ("FoodView".equals(activityName)) {
             if (null == view) {
@@ -63,15 +67,33 @@ public class MyAdapter extends BaseAdapter {
             } else {
                 foodViewItem = (FoodViewItem) view.getTag();
             }
-            foodViewItem.textViewFoodName.setText((String) list.get(position).get("food_name"));
-            foodViewItem.textViewFoodPrice.setText(String.valueOf(list.get(position).get("food_price")));
+            foodViewItem.textViewFoodName.setText(food.getFoodName());
+            foodViewItem.textViewFoodPrice.setText(String.valueOf(food.getFoodPrice()));
+            if (0 ==  food.getFoodState()) {
+                foodViewItem.orderFoodButton.setText("点菜");
+                foodViewItem.orderFoodButton.setBackgroundColor(Color.GREEN);
+            } else {
+                foodViewItem.orderFoodButton.setText("退点");
+                foodViewItem.orderFoodButton.setBackgroundColor(Color.YELLOW);
+            }
             foodViewItem.orderFoodButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //点菜成功，给出提示
-                    foodViewItem.orderFoodButton.setText("退点");
-                    foodViewItem.orderFoodButton.setBackgroundColor(Color.YELLOW);
-                    Toast.makeText(context, "点菜成功!", Toast.LENGTH_SHORT).show();
+                    Food currentfood = spUtil.getFood(position);
+                    if (0 == currentfood.getFoodState()) {
+                        //点菜成功，给出提示，同时修改这个菜品的状态
+                        foodViewItem.orderFoodButton.setText("退点");
+                        foodViewItem.orderFoodButton.setBackgroundColor(Color.YELLOW);
+                        Toast.makeText(context, "点菜成功!", Toast.LENGTH_SHORT).show();
+                        spUtil.updateFoodState(position, 1);
+                    } else {
+                        //退点成功，给出提示，同时修改这个菜品的状态
+                        foodViewItem.orderFoodButton.setText("点菜");
+                        foodViewItem.orderFoodButton.setBackgroundColor(Color.GREEN);
+                        Toast.makeText(context, "退订成功!", Toast.LENGTH_SHORT).show();
+                        spUtil.updateFoodState(position, 0);
+                    }
+
                 }
             });
             return view;
@@ -91,13 +113,22 @@ public class MyAdapter extends BaseAdapter {
             } else {
                 foodViewItem = (FoodViewItem) view.getTag();
             }
-            foodViewItem.textViewFoodNameFoodOrderView.setText((String) list.get(position).get("food_name"));
-            foodViewItem.textViewFoodPriceFoodOrderView.setText(String.valueOf(list.get(position).get("food_price")));
-            foodViewItem.textViewNumFoodOrderView.setText(list.get(position).get("food_num").toString());
-            foodViewItem.textViewMemoFoodOrderView.setText((String)list.get(position).get("food_memo"));
-            log.info(">>>>>>>>>location:"+location);
+            foodViewItem.textViewFoodNameFoodOrderView.setText(food.getFoodName());
+            foodViewItem.textViewFoodPriceFoodOrderView.setText(String.valueOf(food.getFoodPrice()));
+            foodViewItem.textViewNumFoodOrderView.setText(String.valueOf(food.getFoodNum()));
+            foodViewItem.textViewMemoFoodOrderView.setText(food.getMemo());
+            //log.info(">>>>>>>>>location:"+location);
             if("0".equals(location)) { //未下单菜页面，需要删除退订按钮
                 foodViewItem.buttonUnsubscribe.setVisibility(View.GONE);
+            } else {
+                foodViewItem.buttonUnsubscribe.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        spUtil.updateFoodState(position, 0);
+                        foodViewItem.buttonUnsubscribe.setVisibility(View.GONE);
+                        Toast.makeText(context, "退点成功", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
             return view;
         }

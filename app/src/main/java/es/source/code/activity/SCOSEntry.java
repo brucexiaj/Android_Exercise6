@@ -3,11 +3,13 @@ package es.source.code.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 import java.util.logging.Logger;
 import es.source.code.R;
+import es.source.code.util.SharedPreferenceUtil;
 
 public class SCOSEntry extends Activity {
     private Logger log = Logger.getLogger("SCOSEntry");
@@ -42,5 +44,11 @@ public class SCOSEntry extends Activity {
             }
         };
         relativeLayout.setOnTouchListener(onTouchListener);
+
+        //初始化菜品的信息
+        SharedPreferenceUtil spUtil = new SharedPreferenceUtil(SCOSEntry.this);
+        spUtil.initialFoodData();
     }
+
+
 }

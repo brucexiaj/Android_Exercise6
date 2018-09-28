@@ -2,6 +2,7 @@ package es.source.code.activity;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -9,13 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
+
 
 import java.util.logging.Logger;
 
@@ -33,8 +28,10 @@ public class FoodOrderView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.food_view);
+        getSupportActionBar().hide();
         TabLayout tabLayout = findViewById(R.id.tab_layout_food_view);
         ViewPager viewPager = findViewById(R.id.view_pager_food_view);
         myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
@@ -72,6 +69,9 @@ public class FoodOrderView extends AppCompatActivity {
             myFragment = new MyFragment();
             Bundle bundle = new Bundle();
             bundle.putString("activityName", "FoodOrderView");
+            if (null != user) {
+                bundle.putSerializable("userInfo", user);
+            }
             myFragment.setArguments(bundle);
             myFragment.getView();
             bundle.putString("location", 0 == position ? "0" : "1");

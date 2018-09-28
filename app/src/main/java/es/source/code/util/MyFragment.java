@@ -2,6 +2,7 @@ package es.source.code.util;
 
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -25,39 +26,35 @@ import java.util.logging.Logger;
 
 import es.source.code.R;
 import es.source.code.activity.FoodDetailed;
+import es.source.code.model.Food;
+import es.source.code.model.User;
 
 
 public class MyFragment extends Fragment {
     private Logger log = Logger.getLogger("MyFragment");
-    private float foodPrices[] = {9.99f, 43.00f, 24.10f, 100.00f, 22.80f, 29.99f, 10.01f};
-    private String foodNames[] = {"佛跳墙", "夫妻肺片", "水煮鱼", "粉蒸肉", "盐焗鸡", "宫保鸡丁", "地三鲜"};
-    private int foodNums[] = {1,2,3,4,5,6,7};
-    private String memos[] = {"限量供应，先到先得", "偏辣", "秋分时节的鳜鱼，味道鲜美", "少量肥肉", "仔公鸡", "川菜", "荤素搭配，健康美味"};
-    private int foodPhotos[] = {R.mipmap.fotiaoqiang, R.mipmap.fuqifeipian, R.mipmap.shuizhuyu, R.mipmap.fenzhenrou,
-    R.mipmap.yanjuji, R.mipmap.gongbaojiding, R.mipmap.disanxian};
-    private int foodStates[] = {0, 0, 0, 0, 0, 0, 0};//0表示待点的菜，按钮显示为点菜，点完后变为1，按钮显示为退点
-
     private String activityName = "FoodView";
     private String location = "0";
-
+    private User user = new User();
+    private List<Map<String, Object>> viewItems = new ArrayList<Map<String, Object>>();
+    private List<Map<String, Object>> viewItemsPreOrdered = new ArrayList<Map<String, Object>>();//已点菜品
+    private List<Map<String, Object>> viewItemsOrdered = new ArrayList<Map<String, Object>>();//已下单菜品
+    private SharedPreferenceUtil spUtil;
+    private List<Food> foodList = new ArrayList<>();
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        spUtil = new SharedPreferenceUtil(getActivity());
         //获取传递给Fragment的参数
         if (null != getArguments()) {
             activityName = getArguments().getString("activityName");
             location = getArguments().getString("location");
+            user = (User)getArguments().getSerializable("userInfo");
         }
+        //点菜
         if ("FoodView".equals(activityName)) {
+            //获取初始的菜品信息
+            viewItems = spUtil.getFoodMapListByState(0);
             View view = inflater.inflate(R.layout.food_view_listview, null);
-            //适配器
-            List<Map<String, Object>> viewItems = new ArrayList<Map<String, Object>>();
-            for (int i = 0; i < foodNames.length; i++) {
-                Map<String, Object> item = new HashMap<String, Object>();
-                item.put("food_name", foodNames[i]);
-                item.put("food_price", foodPrices[i]);
-                viewItems.add(item);
-            }
             MyAdapter myAdapter = new MyAdapter(viewItems, getActivity(), "FoodView", location);
             ListView listView = view.findViewById(R.id.food_view_listview);
             listView.setFocusable(false);
@@ -67,17 +64,7 @@ public class MyFragment extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     log.info(">>>>>>>>>onItemClick");
                     Intent intent = new Intent(getActivity(), FoodDetailed.class);
-                    //获取按钮上的文字，判断菜的状态
-                    Button button = view.findViewById(R.id.button_order_food);
-                    foodStates[i] = "点菜".equals(button.getText().toString()) ? 0 : 1;
-                    //菜品List都要传过去，为了支持左右滑动
-                    intent.putExtra("foodNames", foodNames);
-                    log.info(">>>>>>>>>foodPrices length:" + foodPrices.length);
-                    intent.putExtra("foodPrices", foodPrices);
-                    intent.putExtra("foodPhotos", foodPhotos);
-                    intent.putExtra("foodStates", foodStates);
-
-                    //当前菜品的索引
+                    //采用了数据存储之后，只需要传当前菜品的索引到下一个页面
                     intent.putExtra("foodIndex", i);
                     startActivity(intent);
                 }
@@ -85,39 +72,54 @@ public class MyFragment extends Fragment {
             listView.setAdapter(myAdapter);
             return view;
 
-        } else {
+        } else { //查看订单
             View view = inflater.inflate(R.layout.food_order_view_listview, null);
-            //适配器
-            List<Map<String, Object>> viewItems = new ArrayList<Map<String, Object>>();
-            for (int i = 0; i < foodNames.length; i++) {
-                Map<String, Object> item = new HashMap<String, Object>();
-                item.put("food_name", foodNames[i]);
-                item.put("food_price", foodPrices[i]);
-                item.put("food_num", foodNums[i]);
-                item.put("food_memo", memos[i]);
-                viewItems.add(item);
-            }
-            MyAdapter myAdapter = new MyAdapter(viewItems, getActivity(), "FoodOrderView", location);
             ListView listView = view.findViewById(R.id.food_order_view_listview);
-            listView.setAdapter(myAdapter);
             TextView textViewTotalNum = view.findViewById(R.id.text_view_total_num);
-            textViewTotalNum.setText(new Integer(foodNames.length).toString());
             TextView textViewTotalPrice = view.findViewById(R.id.text_view_total_price);
-            textViewTotalPrice.setText(calFoodTotalPrice(foodPrices));
             Button buttonSettlement = view.findViewById(R.id.button_settlement);
-            if ("1".equals(location)) {
-                buttonSettlement.setText("提交订单");
+            spUtil = new SharedPreferenceUtil(getActivity());
+            textViewTotalNum.setText("菜品总数:" + String.valueOf(spUtil.getFoodTotalNum()));
+            textViewTotalPrice.setText("总金额:" + spUtil.getFoodTotalPrice());
+
+            MyAdapter myAdapter;
+            if ("0".equals(location)) { //未下单菜
+                //获取初始的菜品信息
+                viewItemsPreOrdered = spUtil.getFoodMapListByState(1);
+                myAdapter = new MyAdapter(viewItemsPreOrdered, getActivity(), "FoodOrderView", location);
+                buttonSettlement.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                            foodList = spUtil.getFoodListByState(1);
+                            for (Food food : foodList) {
+                                spUtil.updateFoodState(food.getFoodIndex(), 2);
+                            }
+                            Toast.makeText(getActivity(), "提交订单成功", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else { //已下单菜
+                //获取初始的菜品信息
+                viewItemsOrdered = spUtil.getFoodMapListByState(2);
+                myAdapter = new MyAdapter(viewItemsOrdered, getActivity(), "FoodOrderView", location);
+                buttonSettlement.setText("结账");
+                buttonSettlement.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (null != user && true == user.getOldUser()) {
+                            Toast.makeText(getActivity(), "您好，老顾客，本次你可享受7折优惠", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
+            listView.setAdapter(myAdapter);
             return view;
         }
 
     }
 
-    public static String calFoodTotalPrice(float foodPrice[]) {
-        float total = 0.0f;
-        for(float price:foodPrice) {
-            total += price;
-        }
-        return String.valueOf(total);
-    }
+
+
+
+
+
 }

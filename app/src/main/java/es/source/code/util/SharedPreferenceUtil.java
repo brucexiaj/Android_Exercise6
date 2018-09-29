@@ -42,7 +42,6 @@ public class SharedPreferenceUtil {
         addFood(food5);
         addFood(food6);
         addFood(food7);
-
     }
 
     //将菜品的信息存入数据库
@@ -94,7 +93,7 @@ public class SharedPreferenceUtil {
         return foodList;
     }
 
-    //获取所有已点的菜和未点的菜，不包括已下单的菜
+    //获取所有的菜品
     public List<Food> getAllFood() {
         List<Food> foodList = new ArrayList<Food>();
         for (int i = 0; i < foodTotalNum; i++) {

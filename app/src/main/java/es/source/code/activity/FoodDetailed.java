@@ -89,7 +89,7 @@ public class FoodDetailed extends Activity {
                     buttonUnsubscribe.setBackgroundColor(Color.GREEN);
                     Toast.makeText(FoodDetailed.this, "退点成功", Toast.LENGTH_LONG).show();;
                 } else {
-                    Toast.makeText(FoodDetailed.this, "请到已下单菜页面退菜！", Toast.LENGTH_LONG).show();;
+                    Toast.makeText(FoodDetailed.this, "请到已下单菜页面退菜！", Toast.LENGTH_LONG).show();
                 }
             }
         });

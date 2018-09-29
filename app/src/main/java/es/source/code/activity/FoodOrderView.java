@@ -74,7 +74,8 @@ public class FoodOrderView extends AppCompatActivity {
             }
             myFragment.setArguments(bundle);
             myFragment.getView();
-            bundle.putString("location", 0 == position ? "0" : "1");
+            //bundle.putString("location", 0 == position ? "0" : "1");
+            bundle.putInt("location", position);
             return myFragment;
         }
 

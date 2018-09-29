@@ -33,11 +33,10 @@ import es.source.code.model.User;
 public class MyFragment extends Fragment {
     private Logger log = Logger.getLogger("MyFragment");
     private String activityName = "FoodView";
-    private String location = "0";
+    private int location = 0;
     private User user = new User();
-    private List<Map<String, Object>> viewItems = new ArrayList<Map<String, Object>>();
-    private List<Map<String, Object>> viewItemsPreOrdered = new ArrayList<Map<String, Object>>();//已点菜品
-    private List<Map<String, Object>> viewItemsOrdered = new ArrayList<Map<String, Object>>();//已下单菜品
+    private List<Food> viewItems = new ArrayList<Food>();
+    private List<Food> viewItemsOrdered = new ArrayList<Food>();//已下单菜品
     private SharedPreferenceUtil spUtil;
     private List<Food> foodList = new ArrayList<>();
 
@@ -47,13 +46,13 @@ public class MyFragment extends Fragment {
         //获取传递给Fragment的参数
         if (null != getArguments()) {
             activityName = getArguments().getString("activityName");
-            location = getArguments().getString("location");
+            location = getArguments().getInt("location");
             user = (User)getArguments().getSerializable("userInfo");
         }
         //点菜
         if ("FoodView".equals(activityName)) {
             //获取初始的菜品信息
-            viewItems = spUtil.getFoodMapListByState(0);
+            viewItems = spUtil.getAllFood();
             View view = inflater.inflate(R.layout.food_view_listview, null);
             MyAdapter myAdapter = new MyAdapter(viewItems, getActivity(), "FoodView", location);
             ListView listView = view.findViewById(R.id.food_view_listview);
@@ -65,7 +64,7 @@ public class MyFragment extends Fragment {
                     log.info(">>>>>>>>>onItemClick");
                     Intent intent = new Intent(getActivity(), FoodDetailed.class);
                     //采用了数据存储之后，只需要传当前菜品的索引到下一个页面
-                    intent.putExtra("foodIndex", i);
+                    intent.putExtra("foodIndex", viewItems.get(i).getFoodIndex());
                     startActivity(intent);
                 }
             });
@@ -81,12 +80,10 @@ public class MyFragment extends Fragment {
             spUtil = new SharedPreferenceUtil(getActivity());
             textViewTotalNum.setText("菜品总数:" + String.valueOf(spUtil.getFoodTotalNum()));
             textViewTotalPrice.setText("总金额:" + spUtil.getFoodTotalPrice());
-
             MyAdapter myAdapter;
-            if ("0".equals(location)) { //未下单菜
-                //获取初始的菜品信息
-                viewItemsPreOrdered = spUtil.getFoodMapListByState(1);
-                myAdapter = new MyAdapter(viewItemsPreOrdered, getActivity(), "FoodOrderView", location);
+            viewItemsOrdered = spUtil.getFoodListByState(location + 1); //获取初始的菜品信息
+            myAdapter = new MyAdapter(viewItemsOrdered, getActivity(), "FoodOrderView", location);
+            if (0 == location) { //未下单菜
                 buttonSettlement.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -98,9 +95,6 @@ public class MyFragment extends Fragment {
                     }
                 });
             } else { //已下单菜
-                //获取初始的菜品信息
-                viewItemsOrdered = spUtil.getFoodMapListByState(2);
-                myAdapter = new MyAdapter(viewItemsOrdered, getActivity(), "FoodOrderView", location);
                 buttonSettlement.setText("结账");
                 buttonSettlement.setOnClickListener(new View.OnClickListener() {
                     @Override

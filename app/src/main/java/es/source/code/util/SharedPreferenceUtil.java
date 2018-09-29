@@ -83,23 +83,6 @@ public class SharedPreferenceUtil {
     }
 
     //根据菜品的状态获取菜品列表
-    public List<Map<String, Object>> getFoodMapListByState(int foodState) {
-        List<Map<String, Object>> foodList = new ArrayList<Map<String, Object>>();
-        for (int i = 0; i < foodTotalNum; i++) {
-            Map<String, Object> item = new HashMap<String, Object>();
-            Food food = this.getFood(i);
-            if (foodState == food.getFoodState()) {
-                item.put("food_name", food.getFoodName());
-                item.put("food_price", food.getFoodPrice());
-                item.put("food_num", food.getFoodNum());
-                item.put("food_memo", food.getMemo());
-                foodList.add(item);
-            }
-        }
-        return foodList;
-    }
-
-    //根据菜品的状态获取菜品列表
     public List<Food> getFoodListByState(int foodState) {
         List<Food> foodList = new ArrayList<Food>();
         for (int i = 0; i < foodTotalNum; i++) {
@@ -107,6 +90,16 @@ public class SharedPreferenceUtil {
             if (foodState == food.getFoodState()) {
                 foodList.add(food);
             }
+        }
+        return foodList;
+    }
+
+    //获取所有已点的菜和未点的菜，不包括已下单的菜
+    public List<Food> getAllFood() {
+        List<Food> foodList = new ArrayList<Food>();
+        for (int i = 0; i < foodTotalNum; i++) {
+            Food food = this.getFood(i);
+            foodList.add(food);
         }
         return foodList;
     }

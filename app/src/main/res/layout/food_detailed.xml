@@ -43,9 +43,9 @@
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal">
         <EditText
+            android:id="@+id/edit_text_memo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:focusable="false"
             android:hint="请输入备注"
             android:gravity="center_horizontal"/>
     </LinearLayout>

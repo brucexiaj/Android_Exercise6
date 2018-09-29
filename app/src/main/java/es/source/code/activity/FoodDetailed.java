@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -28,6 +29,7 @@ public class FoodDetailed extends Activity {
     private TextView textViewFoodPrice;
     private ImageView imageViewFoodPhoto;
     private Button buttonUnsubscribe;
+    private EditText editTextMemo;
 
     private SharedPreferenceUtil spUtil;
     private Food food = new Food();
@@ -42,6 +44,7 @@ public class FoodDetailed extends Activity {
         textViewFoodPrice = findViewById(R.id.text_view_food_price_detailed);
         imageViewFoodPhoto = findViewById(R.id.image_view_food_detail);
         buttonUnsubscribe = findViewById(R.id.button_unsubscribe_food_detail);
+        editTextMemo = findViewById(R.id.edit_text_memo);
 
         //获取FoodView传来的参数
         Intent intent = getIntent();
@@ -49,19 +52,20 @@ public class FoodDetailed extends Activity {
         food = spUtil.getFood(currentFoodIndex);
         foodTotalNums = spUtil.getFoodTotalNum();
 
-
-
-
         //根据参数改变组件上的文字
         textViewFoodName.setText(food.getFoodName());
         textViewFoodPrice.setText(String.valueOf(food.getFoodPrice()));
         imageViewFoodPhoto.setImageResource(food.getFoodPhoto());
-        if (0 ==  food.getFoodState()) {
-            buttonUnsubscribe.setText("点菜");
-            buttonUnsubscribe.setBackgroundColor(Color.GREEN);
-        } else {
-            buttonUnsubscribe.setText("退点");
-            buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
+        switch (food.getFoodState()) {
+            case 0 : buttonUnsubscribe.setText("点菜");
+                buttonUnsubscribe.setBackgroundColor(Color.GREEN);
+                break;
+            case 1 : buttonUnsubscribe.setText("退点");
+                buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
+                break;
+            case 2 : buttonUnsubscribe.setText("已下单");
+                buttonUnsubscribe.setBackgroundColor(Color.GRAY);
+                break;
         }
 
         //点菜或者退点按钮的监听器
@@ -74,11 +78,18 @@ public class FoodDetailed extends Activity {
                     buttonUnsubscribe.setText("退点");
                     buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
                     Toast.makeText(FoodDetailed.this, "点菜成功", Toast.LENGTH_LONG).show();;
-                } else {
+                    //有备注则更新备注
+                    String memo = editTextMemo.getText().toString();
+                    if (null != memo && !"".equals(memo)) {
+                        spUtil.updateMemo(food.getFoodIndex(), memo);
+                    }
+                } else if (1 == food.getFoodState()) {
                     spUtil.updateFoodState(food.getFoodIndex(), 0);
                     buttonUnsubscribe.setText("点菜");
                     buttonUnsubscribe.setBackgroundColor(Color.GREEN);
                     Toast.makeText(FoodDetailed.this, "退点成功", Toast.LENGTH_LONG).show();;
+                } else {
+                    Toast.makeText(FoodDetailed.this, "请到已下单菜页面退菜！", Toast.LENGTH_LONG).show();;
                 }
             }
         });
@@ -117,12 +128,16 @@ public class FoodDetailed extends Activity {
                         textViewFoodName.setText(currentFood.getFoodName());
                         textViewFoodPrice.setText(String.valueOf(currentFood.getFoodPrice()));
                         imageViewFoodPhoto.setImageResource(currentFood.getFoodPhoto());
-                        if (0 ==  currentFood.getFoodState()) {
-                            buttonUnsubscribe.setText("点菜");
-                            buttonUnsubscribe.setBackgroundColor(Color.GREEN);
-                        } else {
-                            buttonUnsubscribe.setText("退点");
-                            buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
+                        switch (currentFood.getFoodState()) {
+                            case 0 : buttonUnsubscribe.setText("点菜");
+                                buttonUnsubscribe.setBackgroundColor(Color.GREEN);
+                                break;
+                            case 1 : buttonUnsubscribe.setText("退点");
+                                buttonUnsubscribe.setBackgroundColor(Color.YELLOW);
+                                break;
+                            case 2 : buttonUnsubscribe.setText("已下单");
+                                buttonUnsubscribe.setBackgroundColor(Color.GRAY);
+                                break;
                         }
                     }
 

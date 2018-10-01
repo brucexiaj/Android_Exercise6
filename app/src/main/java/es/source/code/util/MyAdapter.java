@@ -2,6 +2,7 @@ package es.source.code.util;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -155,6 +156,9 @@ public class MyAdapter extends BaseAdapter {
         public TextView textViewMemoFoodOrderView;
         public Button buttonUnsubscribe;
     }
+
+
+
 
 
 }

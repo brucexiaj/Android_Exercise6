@@ -4,6 +4,7 @@ package es.source.code.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +41,8 @@ public class MyFragment extends Fragment {
     private List<Food> viewItemsOrdered = new ArrayList<Food>();//已下单菜品
     private SharedPreferenceUtil spUtil;
     private List<Food> foodList = new ArrayList<>();
+    private ProgressBar progressBar;
+    private Button buttonSettlement;
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,10 +80,11 @@ public class MyFragment extends Fragment {
             ListView listView = view.findViewById(R.id.food_order_view_listview);
             TextView textViewTotalNum = view.findViewById(R.id.text_view_total_num);
             TextView textViewTotalPrice = view.findViewById(R.id.text_view_total_price);
-            Button buttonSettlement = view.findViewById(R.id.button_settlement);
+            buttonSettlement = view.findViewById(R.id.button_settlement);
+            progressBar = view.findViewById(R.id.progressbar_settlement);
             spUtil = new SharedPreferenceUtil(getActivity());
-            textViewTotalNum.setText("菜品总数:" + String.valueOf(spUtil.getFoodTotalNum()));
-            textViewTotalPrice.setText("总金额:" + spUtil.getFoodTotalPrice());
+            textViewTotalNum.setText("菜品总数:" + spUtil.getFoodTotalNumByState(location + 1));
+            textViewTotalPrice.setText("总金额:" + spUtil.getFoodTotalPriceByState(location + 1));
             MyAdapter myAdapter;
             viewItemsOrdered = spUtil.getFoodListByState(location + 1); //获取初始的菜品信息
             myAdapter = new MyAdapter(viewItemsOrdered, getActivity(), "FoodOrderView", location);
@@ -102,6 +107,8 @@ public class MyFragment extends Fragment {
                         if (null != user && true == user.getOldUser()) {
                             Toast.makeText(getActivity(), "您好，老顾客，本次你可享受7折优惠", Toast.LENGTH_LONG).show();
                         }
+                        //使用Async模拟结账功能
+                        new SettlementAsyncTask().execute(spUtil.getFoodTotalPriceByState(2));
                     }
                 });
             }
@@ -112,8 +119,32 @@ public class MyFragment extends Fragment {
     }
 
 
-
-
-
-
+    //结账异步线程
+    class SettlementAsyncTask extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        @Override
+        protected String doInBackground(String... params) {
+            int pro = 10;
+            int max = progressBar.getMax();
+            while(pro <= max) {
+                try {
+                    progressBar.setProgress(pro);
+                    Thread.sleep(600);
+                    pro += 10;
+                } catch (InterruptedException e) {
+                    log.info(">>>>>>>>settle thread exception!");
+                }
+            }
+            buttonSettlement.setClickable(false);
+            return params[0];
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Toast.makeText(getActivity(), "您本次的消费总额是：" + s, Toast.LENGTH_LONG).show();
+        }
+    }
 }

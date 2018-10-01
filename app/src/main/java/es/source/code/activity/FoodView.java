@@ -43,7 +43,7 @@ public class FoodView extends AppCompatActivity {
         //获取MainScreen传递过来的User信息
         Intent intent = getIntent();
         user = (User)intent.getSerializableExtra("userInfoFromMainScreen");
-        log.info(">>>>>>>>>user name from mainScreen:"+user.getUserName());
+//        log.info(">>>>>>>>>user name from mainScreen:"+user.getUserName());
     }
 
     //添加ActionBar

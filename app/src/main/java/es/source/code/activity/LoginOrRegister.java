@@ -15,10 +15,12 @@ import java.util.regex.Pattern;
 
 import es.source.code.R;
 import es.source.code.model.User;
+import es.source.code.util.SharedPreferenceUtil;
 
 public class LoginOrRegister extends Activity {
     private Logger log = Logger.getLogger("LoginOrRegister");
     private static final String pattern = "^[0-9a-zA-Z]+$";
+    private static SharedPreferenceUtil spUtil;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,14 @@ public class LoginOrRegister extends Activity {
         this.loginButtonListener(this, loginButton, nameText, pwText, pb, log);
         this.registerButtonListener(this, registerButton, nameText, pwText);
         this.returnButtonListener(this, returnButton);
+        //判断是否有用户
+        spUtil = new SharedPreferenceUtil(LoginOrRegister.this);
+        if (!spUtil.isRecordExist("userName")) { //没有用户记录
+            loginButton.setVisibility(View.INVISIBLE);
+        } else { //有用户记录
+            registerButton.setVisibility(View.INVISIBLE);
+            nameText.setText(spUtil.getRecordByName("userName"));
+        }
     }
 
     //登录button监听器
@@ -67,6 +77,9 @@ public class LoginOrRegister extends Activity {
                 loginUser.setOldUser(true);
                 loginUser.setPassword(password);
                 loginUser.setUserName(name);
+                //登录信息注入SharedPreferences
+                spUtil.addStringRecord("userName", name);
+                spUtil.addIntRecord("loginState", 1);
                 //进度条
                 pb.setVisibility(View.VISIBLE);
                 new Thread(new Runnable() {
@@ -106,6 +119,10 @@ public class LoginOrRegister extends Activity {
                 Intent intent = new Intent(context, MainScreen.class);
                 intent.putExtra("InfoFromLogin", "Return");
                 context.startActivity(intent);//  开始跳转
+                //判断是否有用户记录
+                if (!spUtil.isRecordExist("userName")) {
+                    spUtil.addIntRecord("loginState", 0);
+                }
             }
         });
     }
@@ -137,6 +154,9 @@ public class LoginOrRegister extends Activity {
                 registerUser.setUserName(name);
                 registerUser.setPassword(password);
                 registerUser.setOldUser(false);
+                //注册信息注入SharedPreferences
+                spUtil.addStringRecord("userName", name);
+                spUtil.addIntRecord("loginState", 1);
                 Intent intent = new Intent(context, MainScreen.class);
                 intent.putExtra("InfoFromLogin", "RegisterSuccess");
                 Bundle bundle = new Bundle();

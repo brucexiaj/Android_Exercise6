@@ -24,6 +24,9 @@ public class SCOSEntry extends Activity {
         //向左侧滑动监听器
         RelativeLayout relativeLayout = findViewById(R.id.entry_relative_layout);
         relativeLayout.setClickable(true);
+        //初始化菜品的信息
+        final SharedPreferenceUtil spUtil = new SharedPreferenceUtil(SCOSEntry.this);
+        spUtil.initialFoodData();
         View.OnTouchListener onTouchListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -36,7 +39,8 @@ public class SCOSEntry extends Activity {
                     if (50 < x1 - x2) {
                         //跳转到主屏幕
                         Intent mainScreenActivity = new Intent(SCOSEntry.this, MainScreen.class);
-                        mainScreenActivity.putExtra("EntryToMainScreen", "FromEntry");
+                        //mainScreenActivity.putExtra("EntryToMainScreen", "FromEntry");
+                        spUtil.addStringRecord("EntryToMainScreen", "FromEntry");
                         startActivity(mainScreenActivity);//  开始跳转
                     }
                 }
@@ -45,9 +49,7 @@ public class SCOSEntry extends Activity {
         };
         relativeLayout.setOnTouchListener(onTouchListener);
 
-        //初始化菜品的信息
-        SharedPreferenceUtil spUtil = new SharedPreferenceUtil(SCOSEntry.this);
-        spUtil.initialFoodData();
+
     }
 
 

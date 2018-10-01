@@ -107,8 +107,59 @@ public class SharedPreferenceUtil {
         return foodTotalNum;
     }
 
-    public String getFoodTotalPrice() {
-        return String.valueOf(99.99f + 29.99f + 19.99f + 18.29f + 32.00f + 12.99f + 8.40f);
+
+    //菜品总金额
+    public String getFoodTotalPriceByState(int foodState) {
+        float total = 0;
+        for (int i = 0; i < foodTotalNum; i++) {
+            Food food = this.getFood(i);
+            if (foodState == food.getFoodState())
+                total += food.getFoodPrice();
+        }
+        return String.valueOf(total);
     }
+
+    //菜品总量
+    public String getFoodTotalNumByState(int foodState) {
+        int total = 0;
+        for (int i = 0; i < foodTotalNum; i++) {
+            Food food = this.getFood(i);
+            if (foodState == food.getFoodState())
+                total ++;
+        }
+        return String.valueOf(total);
+    }
+
+    //判断某条记录是否存在
+    public Boolean isRecordExist(String recordName) {
+        String record = sp.getString(recordName, "");
+        if (null == record || "".equals(record)) {
+            return false;
+        }
+        return true;
+    }
+
+    //获取某条记录
+    public String getRecordByName(String recordName) {
+        return sp.getString(recordName, "");
+    }
+
+    //获取某条记录
+    public int getIntRecordByName(String recordName) {
+        return sp.getInt(recordName, 0);
+    }
+
+    //存入一条字符串记录
+    public void addStringRecord(String recordName, String recordValue) {
+        editor.putString(recordName, recordValue);
+        editor.commit();
+    }
+
+    //存入一条整型记录
+    public void addIntRecord(String recordName, int recordValue) {
+        editor.putInt(recordName, recordValue);
+        editor.commit();
+    }
+
 
 }

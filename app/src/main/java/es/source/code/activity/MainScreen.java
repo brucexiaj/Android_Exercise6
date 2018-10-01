@@ -25,16 +25,21 @@ import es.source.code.util.SharedPreferenceUtil;
 
 public class MainScreen extends Activity {
     private Logger log = Logger.getLogger("MainScreen");
-    private int navigateImgs[] = {R.mipmap.make_order_no, R.mipmap.order_no, R.mipmap.login_no,
+    private int navigateImgsMax[] = {R.mipmap.make_order_no, R.mipmap.order_no, R.mipmap.login_no,
         R.mipmap.help_no};
-    private int navigateImgsLess[] = {R.mipmap.login_no,
+    private int navigateImgsMin[] = {R.mipmap.login_no,
             R.mipmap.help_no};
-    private String navigateNames[] = {"点菜", "订单", "登录/注册", "帮助"};
-    private String navigateNamesLess[] = {"登录/注册", "帮助"};
+    private String navigateNamesMax[] = {"点菜", "订单", "登录/注册", "帮助"};
+    private String navigateNamesMin[] = {"登录/注册", "帮助"};
     private static final String LOGIN_OR_REGISTER = "登录/注册";
     private static final String MAKE_ORDER = "点菜";
     private static final String ORDER = "订单";
+    private static final String HELP = "帮助";
     private User user = new User();
+    private SharedPreferenceUtil spUtil;
+    private int loginState = 0;
+    private String navigateNames[];
+    private int navigateImgs[];
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,41 +48,33 @@ public class MainScreen extends Activity {
         GridView gridView = findViewById(R.id.main_screen_gradview);
 
         //处理从其它的Activity传递过来的值
+        spUtil = new SharedPreferenceUtil(MainScreen.this);
         Intent intent = getIntent();
         if (null != intent) {
             //获取SCOSEntry传过来的值
-            String infoFromPreActivity = intent.getStringExtra("EntryToMainScreen");
+            String infoFromPreActivity = spUtil.getRecordByName("EntryToMainScreen");
             log.info(">>>>>>>>>infoFromPreActivity:" + infoFromPreActivity);
-            //判断传过来的值是不是FromEntry，不是则隐藏点菜、订单按钮
-            if (null != infoFromPreActivity && !"FromEntry".equals(infoFromPreActivity)) {
-                navigateImgs = navigateImgsLess;
-                navigateNames = navigateNamesLess;
+            //判断数据库里的值是不是FromEntry，是则隐藏点菜、订单按钮
+            if (null != infoFromPreActivity && "FromEntry".equals(infoFromPreActivity)) {
+                navigateImgs = navigateImgsMin;
+                navigateNames = navigateNamesMin;
+            } else {
+                navigateImgs = navigateImgsMax;
+                navigateNames = navigateNamesMax;
             }
-            //获取登录注册页面传过来的值
-            String infoFromLogin = intent.getStringExtra("InfoFromLogin");
+            //获取LoginOrRegister传过来的值
+            loginState = spUtil.getIntRecordByName("loginState");
             User userFromLoginOrRegister = (User)intent.getSerializableExtra("userInfo");
-            if (null != userFromLoginOrRegister) {
-                log.info(">>>>>>>>>login or register user name:" + userFromLoginOrRegister.getUserName());
-            }
-            log.info(">>>>>>>>>infoFromPreActivity:" + infoFromLogin);
-            if (null != infoFromLogin) {
-                switch (infoFromLogin) {
-                    case "Return":
-                        navigateImgs = navigateImgsLess;
-                        navigateNames = navigateNamesLess;
-                        break;
-                    case "LoginSuccess":
-                        user = userFromLoginOrRegister;
-                        break;
-                    case "RegisterSuccess":
-                        log.info(">>>>>>>>>get RegisterSuccess from loginOrRegister");
-                        user = userFromLoginOrRegister;
-                        Toast.makeText(this, "欢迎您成为SCOS新用户", Toast.LENGTH_LONG).show();
-                        break;
-                        default:
-                            user = null;
-                            break;
-                }
+//            if (null != userFromLoginOrRegister) {
+//                log.info(">>>>>>>>>login or register user name:" + userFromLoginOrRegister.getUserName());
+//            }
+            if (1 == loginState) {
+                user = userFromLoginOrRegister;
+                navigateImgs = navigateImgsMax;
+                navigateNames = navigateNamesMax;
+            } else {
+                navigateImgs = navigateImgsMin;
+                navigateNames = navigateNamesMin;
             }
         }
 
@@ -120,6 +117,14 @@ public class MainScreen extends Activity {
                     foodOrderViewActivity.putExtra("userInfoFromMainScreen", user);
                     MainScreen.this.startActivity(foodOrderViewActivity);//  开始跳转
                 }
+
+                //到SCOSHelper
+                if (HELP.equals(navigateNames[position])) {
+                    Intent helpActivity = new Intent(MainScreen.this, SCOSHelper.class);
+                    MainScreen.this.startActivity(helpActivity);//  开始跳转
+                }
+
+
             }
         });
 

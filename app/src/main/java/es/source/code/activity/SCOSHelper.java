@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.telephony.SmsManager;
 import android.view.View;
@@ -13,21 +14,39 @@ import android.widget.GridView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import es.source.code.R;
+import es.source.code.util.EventBusMessage;
 import es.source.code.util.SendMailUtil;
 
 public class SCOSHelper extends Activity {
 
+    private Logger log = Logger.getLogger("SCOSHelper");
     private String columnNames[] = {"使用协议", "关于系统", "电话帮助", "短信帮助", "邮件帮助"};
     private int columnImgs[] = {R.mipmap.user_protocal, R.mipmap.about_us, R.mipmap.phone, R.mipmap.message, R.mipmap.mail};
     private static final String PHONE = "5545";
     private static final String MESSAGE_CONTENT = "test scos helper";
     private Handler handler;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(EventBusMessage message){
+        log.info(">>>>>>>>>收到邮件发送的提示：" + message.getMessageName() + message.getIntMessage());
+        if (1 == message.getIntMessage()) {
+           // Looper.prepare();
+            Toast.makeText(SCOSHelper.this, "求助邮件发送成功", Toast.LENGTH_LONG).show();
+           // Looper.loop();
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,15 +69,17 @@ public class SCOSHelper extends Activity {
         gridView.setAdapter(simpleAdapter);
 
         //Handler
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message message) {
-                super.handleMessage(message);
-                if (1 == message.what) {
-                    Toast.makeText(SCOSHelper.this, "求助邮件发送成功", Toast.LENGTH_LONG).show();
-                }
-            }
-        };
+//        handler = new Handler() {
+//            @Override
+//            public void handleMessage(Message message) {
+//                super.handleMessage(message);
+//                if (1 == message.what) {
+//                    Toast.makeText(SCOSHelper.this, "求助邮件发送成功", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        };
+
+        EventBus.getDefault().register(SCOSHelper.this);
 
 
         //监听器
@@ -88,6 +109,7 @@ public class SCOSHelper extends Activity {
                         Toast.makeText(SCOSHelper.this, "求助短信发送成功", Toast.LENGTH_LONG).show();
                         break;
                     case 4:
+
                         new Thread() {
                             @Override
                             public void run() {
@@ -96,7 +118,7 @@ public class SCOSHelper extends Activity {
                                 } catch (Exception e) {
                                     Toast.makeText(SCOSHelper.this, "发送邮件异常，请重试", Toast.LENGTH_LONG).show();
                                 }
-                                handler.sendEmptyMessage(1);
+                                EventBus.getDefault().post(new EventBusMessage("mailResult", 1));
                             }
                         }.start();
                         break;
@@ -107,4 +129,6 @@ public class SCOSHelper extends Activity {
         });
 
     }
+
+
 }

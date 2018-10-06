@@ -5,7 +5,7 @@
     >
 
     <LinearLayout
-        android:layout_width="260dp"
+        android:layout_width="280dp"
         android:layout_height="30dp"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
@@ -17,15 +17,24 @@
             android:text="菜名"
             android:focusable="false" />
         <TextView
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="match_parent"
             android:id="@+id/food_price"
             android:text="价格"
+
+            android:focusable="false" />
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:id="@+id/text_view_food_num"
+            android:text="数量"
+            android:textColor="#00f"
+            android:textStyle="bold"
             android:focusable="false" />
         <Button
 
             android:layout_marginLeft="20dp"
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="match_parent"
             android:text="点菜"
             android:focusable="false"

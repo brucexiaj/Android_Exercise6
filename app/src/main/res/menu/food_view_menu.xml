@@ -16,6 +16,11 @@
 
         app:showAsAction="always"
         android:title="呼叫服务"/>
+    <item
+        android:id="@+id/in_time_update"
+
+        app:showAsAction="always"
+        android:title="启动实时更新"/>
 
 </menu>
 

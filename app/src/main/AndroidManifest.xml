@@ -6,7 +6,25 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        >
+
+
+
+        <service android:name="es.source.code.service.ServerObserverService"
+            android:process="es.source.code.observeservice">
+        </service>
+
+        <service android:name="es.source.code.service.UpdateService">
+        </service>
+
+        <receiver
+            android:name="es.source.code.br.DeviceStartedListener">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED">
+                </action>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name="es.source.code.activity.SCOSEntry"
@@ -61,5 +79,11 @@
     <uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
     <uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+
+
 
 </manifest>

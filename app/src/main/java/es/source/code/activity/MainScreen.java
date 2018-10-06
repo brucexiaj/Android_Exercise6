@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 
 import es.source.code.R;
 import es.source.code.model.User;
+import es.source.code.service.UpdateService;
 import es.source.code.util.SharedPreferenceUtil;
 
 public class MainScreen extends Activity {

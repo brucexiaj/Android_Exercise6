@@ -75,6 +75,18 @@ public class SharedPreferenceUtil {
         editor.commit();
     }
 
+    //更新菜品库存
+    public void updateFoodNumByFoodName(int foodNum, String foodName) {
+        for (int i = 0; i < foodTotalNum; i++) {
+            Food food = this.getFood(i);
+            if (foodName.equals(food.getFoodName())) {
+                editor.putInt( food.getFoodIndex() + "foodNum", foodNum);
+                editor.commit();
+                break;
+            }
+        }
+    }
+
     //修改菜品的备注
     public void updateMemo(int foodIndex, String memo) {
         editor.putString(foodIndex + "memo", memo);

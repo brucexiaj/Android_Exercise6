@@ -64,12 +64,14 @@ public class MyAdapter extends BaseAdapter {
                 foodViewItem.textViewFoodName = view.findViewById(R.id.food_name);
                 foodViewItem.textViewFoodPrice = view.findViewById(R.id.food_price);
                 foodViewItem.orderFoodButton = view.findViewById(R.id.button_order_food);
+                foodViewItem.textViewFoodNum = view.findViewById(R.id.text_view_food_num);
                 view.setTag(foodViewItem);
             } else {
                 foodViewItem = (FoodViewItem) view.getTag();
             }
             foodViewItem.textViewFoodName.setText(food.getFoodName());
             foodViewItem.textViewFoodPrice.setText(String.valueOf(food.getFoodPrice()));
+            foodViewItem.textViewFoodNum.setText(String.valueOf(food.getFoodNum()));
             switch (food.getFoodState()) {
                 case 0 : foodViewItem.orderFoodButton.setText("点菜");
                          foodViewItem.orderFoodButton.setBackgroundColor(Color.GREEN);
@@ -148,6 +150,7 @@ public class MyAdapter extends BaseAdapter {
         public TextView textViewFoodName;
         public TextView textViewFoodPrice;
         public Button orderFoodButton;
+        private TextView textViewFoodNum;
 
         //FoodOrderView页面的组件
         public TextView textViewFoodNameFoodOrderView;

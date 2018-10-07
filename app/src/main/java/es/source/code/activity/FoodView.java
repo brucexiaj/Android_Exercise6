@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -51,7 +53,6 @@ public class FoodView extends AppCompatActivity {
     private User user = new User();
     private Messenger serverMessenger;
     private Message message = Message.obtain();
-    private IBinder iBinder;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private SharedPreferenceUtil spUtil;
@@ -73,12 +74,7 @@ public class FoodView extends AppCompatActivity {
 
         bindService(intentService, serviceConnection, BIND_AUTO_CREATE);
         spUtil = new SharedPreferenceUtil(this);
-
-       // EventBus.getDefault().register(FoodView.this);
-
     }
-
-
 
     //添加ActionBar
     @Override
@@ -111,24 +107,21 @@ public class FoodView extends AppCompatActivity {
                 return true;
             case R.id.in_time_update:
                 if ("启动实时更新".equals(item.getTitle())) {
-//                    message.what = 1;
-//                    try {
-//                        serverMessenger.send(message);
-//                    } catch (RemoteException e) {
-//                        log.warning(">>>>>>>>>向service发送更新消息失败");
-//                    }
-//                    item.setTitle("停止实时更新");
-                    EventBus.getDefault().post(new TestMessage("sdf"));
-                    log.info(">>>>>>>>>消息发送成功");
+                    message.what = 1;
+                    try {
+                        serverMessenger.send(message);
+                    } catch (RemoteException e) {
+                        log.warning(">>>>>>>>>向service发送更新消息失败");
+                    }
+                    item.setTitle("停止实时更新");
                 } else {
-//                    log.info(">>>>>>>>>按钮变为停止更新");
-//                    message.what = 0;
-//                    try {
-//                        serverMessenger.send(message);
-//                    } catch (RemoteException e) {
-//                        log.warning(">>>>>>>>>向service发送更新消息失败");
-//                    }
-                    EventBus.getDefault().post(0);
+                    log.info(">>>>>>>>>按钮变为停止更新");
+                    message.what = 0;
+                    try {
+                        serverMessenger.send(message);
+                    } catch (RemoteException e) {
+                        log.warning(">>>>>>>>>向service发送更新消息失败");
+                    }
                 }
                 return true;
             default:
@@ -141,10 +134,9 @@ public class FoodView extends AppCompatActivity {
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-//            log.info(">>>>>>>连接服务");
-//            iBinder = binder;
-//            serverMessenger = new Messenger(binder);
-//            message.replyTo = clientMessenger;
+            log.info(">>>>>>>连接服务");
+            serverMessenger = new Messenger(binder);
+            message.replyTo = clientMessenger;
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {

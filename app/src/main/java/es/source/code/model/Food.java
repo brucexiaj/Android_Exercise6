@@ -2,6 +2,8 @@ package es.source.code.model;
 
 import java.io.Serializable;
 
+import es.source.code.R;
+
 public class Food implements Serializable {
     private int foodIndex;
     private String foodName;
@@ -11,10 +13,13 @@ public class Food implements Serializable {
     private int foodNum;
     private String memo;
 
+    private int category;
+
     public Food() {
     }
 
-    public Food(int foodIndex, String foodName, float foodPrice, int foodState, int foodPhoto, int foodNum, String memo) {
+    public Food(int foodIndex, String foodName, float foodPrice, int foodState, int foodPhoto,
+                int foodNum, String memo, int category) {
         this.foodIndex = foodIndex;
         this.foodName = foodName;
         this.foodPrice = foodPrice;
@@ -22,6 +27,18 @@ public class Food implements Serializable {
         this.foodPhoto = foodPhoto;
         this.foodNum = foodNum;
         this.memo = memo;
+        this.category = category;
+    }
+
+    public Food(int foodIndex, String foodName, float foodPrice, int foodCategory) {
+        this.foodIndex = foodIndex;
+        this.foodName = foodName;
+        this.foodPrice = foodPrice;
+        this.foodState = 0;
+        this.foodPhoto = R.mipmap.logo;
+        this.foodNum = 1;
+        this.category = foodCategory;
+        this.memo = "默认备注";
     }
 
     public int getFoodIndex() {
@@ -78,5 +95,13 @@ public class Food implements Serializable {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
     }
 }

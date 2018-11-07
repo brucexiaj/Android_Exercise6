@@ -8,6 +8,8 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 import java.util.logging.Logger;
@@ -23,6 +25,10 @@ public class ReceiveFoodInfoThread extends Thread {
         this.clientMessenger = clientMessenger;
     }
 
+    public ReceiveFoodInfoThread(Context context) {
+        this.context = context;
+    }
+
     @Override
     public void run(){
        while(true) {
@@ -35,20 +41,26 @@ public class ReceiveFoodInfoThread extends Thread {
                if (info.baseActivity.getPackageName().equals("es.source.code")) {
                    log.info(">>>>>>>>>程序在运行");
                    //携带库存信息
-                   Message message = new Message();
-                   message.what = 10;
-                   Bundle bundle = new Bundle();
-                   bundle.putString("foodName", "盐焗鸡");
-                   bundle.putInt("foodNum", 12);
-                   message.setData(bundle);
-                   if (null != clientMessenger) {
-                       try {
-                           clientMessenger.send(message);
-                       } catch (RemoteException e) {
-                           log.warning(">>>>>>>>>向客户端发送消息失败");
-                       }
-                       log.info(">>>>>>>>>向客户端发送消息成功");
-                   }
+//                   Message message = new Message();
+//                   message.what = 10;
+//                   Bundle bundle = new Bundle();
+//                   bundle.putString("foodName", "盐焗鸡");
+//                   bundle.putInt("foodNum", 12);
+//                   message.setData(bundle);
+//                   if (null != clientMessenger) {
+//                       try {
+//                           clientMessenger.send(message);
+//                       } catch (RemoteException e) {
+//                           log.warning(">>>>>>>>>向客户端发送消息失败");
+//                       }
+//                       log.info(">>>>>>>>>向客户端发送消息成功");
+//                   }
+                   //使用EventBus从服务器向客户端发送消息
+                   EventBusMessage busMessage = new EventBusMessage();
+                   busMessage.setIntMessage(10);
+                   busMessage.setFoodNum(12);
+                   busMessage.setMessageName("盐焗鸡");
+                   EventBus.getDefault().post(busMessage);
                }
            }
            try {

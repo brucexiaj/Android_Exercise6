@@ -42,6 +42,7 @@ import es.source.code.model.User;
 import es.source.code.util.EventBusMessage;
 import es.source.code.util.MyFragment;
 import es.source.code.service.ServerObserverService;
+import es.source.code.util.ReceiveFoodInfoThread;
 import es.source.code.util.SharedPreferenceUtil;
 import es.source.code.util.TestMessage;
 
@@ -51,8 +52,6 @@ public class FoodView extends AppCompatActivity {
     private final String[] columns = {"冷菜", "热菜", "海鲜", "饮料"};
     private MyPagerAdapter myPagerAdapter;
     private User user = new User();
-    private Messenger serverMessenger;
-    private Message message = Message.obtain();
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private SharedPreferenceUtil spUtil;
@@ -74,6 +73,9 @@ public class FoodView extends AppCompatActivity {
 
         bindService(intentService, serviceConnection, BIND_AUTO_CREATE);
         spUtil = new SharedPreferenceUtil(this);
+
+        //注册EventBus
+        EventBus.getDefault().register(FoodView.this);
     }
 
     //添加ActionBar
@@ -107,21 +109,18 @@ public class FoodView extends AppCompatActivity {
                 return true;
             case R.id.in_time_update:
                 if ("启动实时更新".equals(item.getTitle())) {
-                    message.what = 1;
-                    try {
-                        serverMessenger.send(message);
-                    } catch (RemoteException e) {
-                        log.warning(">>>>>>>>>向service发送更新消息失败");
-                    }
+                    //构造并且使用EventBus发送消息
+                    EventBusMessage busMessage = new EventBusMessage();
+                    busMessage.setIntMessage(1);
+                    EventBus.getDefault().post(busMessage);
                     item.setTitle("停止实时更新");
                 } else {
                     log.info(">>>>>>>>>按钮变为停止更新");
-                    message.what = 0;
-                    try {
-                        serverMessenger.send(message);
-                    } catch (RemoteException e) {
-                        log.warning(">>>>>>>>>向service发送更新消息失败");
-                    }
+                    //构造并且使用EventBus发送消息
+                    EventBusMessage busMessage = new EventBusMessage();
+                    busMessage.setIntMessage(0);
+                    EventBus.getDefault().post(busMessage);
+                    item.setTitle("停止实时更新");
                 }
                 return true;
             default:
@@ -135,32 +134,28 @@ public class FoodView extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             log.info(">>>>>>>连接服务");
-            serverMessenger = new Messenger(binder);
-            message.replyTo = clientMessenger;
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
-             serverMessenger = null;
+
         }
     };
 
 
-    private Handler sMessageHandler = new Handler() {
-        @Override
-        public void handleMessage(Message message) {
-            log.info(">>>>>>>>>收到来自服务器的信息");
 
-            if (10 == message.what) {
-                log.info(">>>>>>>>>开始更新菜品信息");
-                Bundle bundle = message.getData();
-                String foodName = bundle.getString("foodName");
-                int foodNum = bundle.getInt("foodNum");
-                spUtil.updateFoodNumByFoodName(foodNum, foodName);
-            }
+    //改为使用EventBus接受从服务器端传过来的菜品信息
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void getEventBusMessage(EventBusMessage message) {
+        log.info("使用EventBus从服务端发送过来的内容是：" + message.getIntMessage());
+        //根据收到的信息更新菜品的库存
+        if (10 == message.getIntMessage()) {
+            log.info(">>>>>>>>>开始更新菜品信息");
+            String foodName = message.getMessageName();
+            int foodNum = message.getFoodNum();
+            spUtil.updateFoodNumByFoodName(foodNum, foodName);
         }
-    };
+    }
 
-    private Messenger clientMessenger = new Messenger(sMessageHandler);
 
     class MyPagerAdapter extends FragmentPagerAdapter {
         public MyFragment myFragment;
@@ -176,6 +171,7 @@ public class FoodView extends AppCompatActivity {
             myFragment = new MyFragment();
             Bundle bundle = new Bundle();
             bundle.putString("activityName", "FoodView");
+            bundle.putInt("location", position);
             myFragment.setArguments(bundle);
             myFragment.getView();
             return myFragment;

@@ -36,7 +36,7 @@ public class MyFragment extends Fragment {
     private Logger log = Logger.getLogger("MyFragment");
     private String activityName = "FoodView";
     private int location = 0;
-    private User user = new User();
+    private User user = null;
     private List<Food> viewItems = new ArrayList<Food>();
     private List<Food> viewItemsOrdered = new ArrayList<Food>();//已下单菜品
     private SharedPreferenceUtil spUtil;
@@ -56,7 +56,7 @@ public class MyFragment extends Fragment {
         //点菜
         if ("FoodView".equals(activityName)) {
             //获取初始的菜品信息
-            viewItems = spUtil.getAllFood();
+            viewItems = spUtil.getFoodListByCategory(location);
             View view = inflater.inflate(R.layout.food_view_listview, null);
             MyAdapter myAdapter = new MyAdapter(viewItems, getActivity(), "FoodView", location);
             ListView listView = view.findViewById(R.id.food_view_listview);
@@ -104,8 +104,9 @@ public class MyFragment extends Fragment {
                 buttonSettlement.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (null != user && true == user.getOldUser()) {
-                            Toast.makeText(getActivity(), "您好，老顾客，本次你可享受7折优惠", Toast.LENGTH_LONG).show();
+                        if (null != user && null != user.getOldUser() && true == user.getOldUser()) {
+                                Toast.makeText(getActivity(), "您好，老顾客，本次你可享受7折优惠", Toast.LENGTH_LONG).show();
+
                         }
                         //使用Async模拟结账功能
                         new SettlementAsyncTask().execute(spUtil.getFoodTotalPriceByState(2));

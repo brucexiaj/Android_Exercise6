@@ -1,4 +1,4 @@
-package es.source.code.activity;
+﻿package es.source.code.activity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -55,28 +55,30 @@ public class MainScreen extends Activity {
             //获取SCOSEntry传过来的值
             String infoFromPreActivity = spUtil.getRecordByName("EntryToMainScreen");
             log.info(">>>>>>>>>infoFromPreActivity:" + infoFromPreActivity);
+            navigateImgs = navigateImgsMax;
+            navigateNames = navigateNamesMax;
             //判断数据库里的值是不是FromEntry，是则隐藏点菜、订单按钮
-            if (null != infoFromPreActivity && "FromEntry".equals(infoFromPreActivity)) {
-                navigateImgs = navigateImgsMin;
-                navigateNames = navigateNamesMin;
-            } else {
-                navigateImgs = navigateImgsMax;
-                navigateNames = navigateNamesMax;
-            }
+//            if (null != infoFromPreActivity && !"FromEntry".equals(infoFromPreActivity)) {
+//                navigateImgs = navigateImgsMin;
+//                navigateNames = navigateNamesMin;
+//            } else {
+//                navigateImgs = navigateImgsMax;
+//                navigateNames = navigateNamesMax;
+//            }
             //获取LoginOrRegister传过来的值
             loginState = spUtil.getIntRecordByName("loginState");
             User userFromLoginOrRegister = (User)intent.getSerializableExtra("userInfo");
 //            if (null != userFromLoginOrRegister) {
 //                log.info(">>>>>>>>>login or register user name:" + userFromLoginOrRegister.getUserName());
 //            }
-            if (1 == loginState) {
-                user = userFromLoginOrRegister;
-                navigateImgs = navigateImgsMax;
-                navigateNames = navigateNamesMax;
-            } else {
-                navigateImgs = navigateImgsMin;
-                navigateNames = navigateNamesMin;
-            }
+//            if (1 == loginState) {
+//                user = userFromLoginOrRegister;
+//                navigateImgs = navigateImgsMax;
+//                navigateNames = navigateNamesMax;
+//            } else {
+//                navigateImgs = navigateImgsMin;
+//                navigateNames = navigateNamesMin;
+//            }
         }
 
         //适配器
@@ -123,6 +125,8 @@ public class MainScreen extends Activity {
                 if (HELP.equals(navigateNames[position])) {
                     Intent helpActivity = new Intent(MainScreen.this, SCOSHelper.class);
                     MainScreen.this.startActivity(helpActivity);//  开始跳转
+ //                   Intent updateService = new Intent(MainScreen.this, UpdateService.class);
+  //                  MainScreen.this.startService(updateService);
                 }
 
 

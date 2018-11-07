@@ -12,7 +12,7 @@
 
 
         <service android:name="es.source.code.service.ServerObserverService"
-            android:process="es.source.code.observeservice">
+            android:process="es.source.code">
         </service>
 
         <service android:name="es.source.code.service.UpdateService">

@@ -26,7 +26,9 @@ public class SCOSEntry extends Activity {
         relativeLayout.setClickable(true);
         //初始化菜品的信息
         final SharedPreferenceUtil spUtil = new SharedPreferenceUtil(SCOSEntry.this);
-        spUtil.initialFoodData();
+        if (0 == spUtil.getTotalNum()) {
+            spUtil.initialFoodData();
+        }
         View.OnTouchListener onTouchListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {

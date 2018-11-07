@@ -50,7 +50,7 @@ public class FoodDetailed extends Activity {
         Intent intent = getIntent();
         currentFoodIndex = intent.getIntExtra("foodIndex", 0);
         food = spUtil.getFood(currentFoodIndex);
-        foodTotalNums = spUtil.getFoodTotalNum();
+        foodTotalNums = spUtil.getTotalNum();
 
         //根据参数改变组件上的文字
         textViewFoodName.setText(food.getFoodName());

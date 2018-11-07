@@ -10,24 +10,35 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import es.source.code.R;
 import es.source.code.model.User;
+import es.source.code.util.EventBusMessage;
+import es.source.code.util.InternetUtil;
 import es.source.code.util.SharedPreferenceUtil;
 
 public class LoginOrRegister extends Activity {
     private Logger log = Logger.getLogger("LoginOrRegister");
     private static final String pattern = "^[0-9a-zA-Z]+$";
     private static SharedPreferenceUtil spUtil;
+    private static final String LOGIN_URL = "http://192.168.43.183:8080/SCOSServer/login?";
+    private EditText nameText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_or_register);
         //获取并校验登录名和密码
-        EditText nameText = findViewById(R.id.login_name_edittext);
+        nameText = findViewById(R.id.login_name_edittext);
         EditText pwText = findViewById(R.id.login_pw_edittext);
         Button loginButton = findViewById(R.id.login_button);
         Button returnButton = findViewById(R.id.return_button);
@@ -44,6 +55,12 @@ public class LoginOrRegister extends Activity {
             registerButton.setVisibility(View.INVISIBLE);
             nameText.setText(spUtil.getRecordByName("userName"));
         }
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(String message){
+        nameText.setError(message);
     }
 
     //登录button监听器
@@ -53,33 +70,8 @@ public class LoginOrRegister extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name = nameText.getText().toString();
-                String password = pwText.getText().toString();
-                //校验输入
-                if (null != name) {
-                    log.info(">>>>>>>>>name:"+name);
-                    if (!Pattern.matches(pattern, name)) {
-                        log.info(">>>>>>>>>invalid input for name");
-                        nameText.setError("输入内容不符合规则");
-                        return;
-                    }
-                }
-                if (null != password) {
-                    log.info(">>>>>>>>>password:"+password);
-                    if (!Pattern.matches(pattern, password)) {
-                        log.info(">>>>>>>>>invalid input for password");
-                        pwText.setError("输入内容不符合规则");
-                        return;
-                    }
-                }
-                //存入user
-                final User loginUser = new User();
-                loginUser.setOldUser(true);
-                loginUser.setPassword(password);
-                loginUser.setUserName(name);
-                //登录信息注入SharedPreferences
-                spUtil.addStringRecord("userName", name);
-                spUtil.addIntRecord("loginState", 1);
+                final String name = nameText.getText().toString();
+                final String password = pwText.getText().toString();
                 //进度条
                 pb.setVisibility(View.VISIBLE);
                 new Thread(new Runnable() {
@@ -93,19 +85,36 @@ public class LoginOrRegister extends Activity {
                                 pb.setProgress(pro);
                                 Thread.sleep(400);
                             }
-                            //跳到MainScreen
-                            Intent intent = new Intent(context, MainScreen.class);
-                            intent.putExtra("InfoFromLogin", "LoginSuccess");
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable("userInfo", loginUser);
-                            intent.putExtras(bundle);
-                            context.startActivity(intent);//  开始跳转
-                        } catch (InterruptedException e) {
+                            //连接Server
+                            String loginResult = InternetUtil.postDownloadJson(LOGIN_URL, "username=" + name + "&password=" + password);
+                            JSONObject jsonObject = new JSONObject(loginResult);
+                            log.info(">>>>>>>>>服务器返回的信息是：" + loginResult);
+                            if (null == loginResult) {
+                                EventBus.getDefault().post("无法连接服务器，请重试");
+                            } else if (0 == (int)jsonObject.get("RESULTCODE")) {
+                                EventBus.getDefault().post("输入内容不符合规则");
+                            } else {
+                                //存入user
+                                final User loginUser = new User();
+                                loginUser.setOldUser(true);
+                                loginUser.setPassword(password);
+                                loginUser.setUserName(name);
+                                //登录信息注入SharedPreferences
+                                spUtil.addStringRecord("userName", name);
+                                spUtil.addIntRecord("loginState", 1);
+                                //跳到MainScreen
+                                Intent intent = new Intent(context, MainScreen.class);
+                                intent.putExtra("InfoFromLogin", "LoginSuccess");
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("userInfo", loginUser);
+                                intent.putExtras(bundle);
+                                context.startActivity(intent);//  开始跳转
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
                 }).start();
-
             }
         });
     }
@@ -134,35 +143,41 @@ public class LoginOrRegister extends Activity {
             @Override
             public void onClick(View view) {
                 //检测用户名和密码
-                String name = nameText.getText().toString();
-                String password = pwText.getText().toString();
-                //校验输入
-                if (null != name) {
-                    if (!Pattern.matches(pattern, name)) {
-                        nameText.setError("输入内容不符合规则");
-                        return;
+                final String name = nameText.getText().toString();
+                final String password = pwText.getText().toString();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            //连接Server
+                            String loginResult = InternetUtil.postDownloadJson(LOGIN_URL, "username=" + name + "&password=" + password);
+                            JSONObject jsonObject = new JSONObject(loginResult);
+                            if (null == loginResult) {
+                                EventBus.getDefault().post("无法连接服务器，请重试");
+                            } else if (0 == (int)jsonObject.get("RESULTCODE")) {
+                                EventBus.getDefault().post("输入内容不符合规则");
+                            } else {
+                                //存入User
+                                User registerUser = new User();
+                                registerUser.setUserName(name);
+                                registerUser.setPassword(password);
+                                registerUser.setOldUser(false);
+                                //注册信息注入SharedPreferences
+                                spUtil.addStringRecord("userName", name);
+                                spUtil.addIntRecord("loginState", 1);
+                                Intent intent = new Intent(context, MainScreen.class);
+                                intent.putExtra("InfoFromLogin", "RegisterSuccess");
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("userInfo", registerUser);
+                                intent.putExtras(bundle);
+                                context.startActivity(intent);//  开始跳转
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                if (null != password) {
-                    if (!Pattern.matches(pattern, password)) {
-                        pwText.setError("输入内容不符合规则");
-                        return;
-                    }
-                }
-                //存入User
-                User registerUser = new User();
-                registerUser.setUserName(name);
-                registerUser.setPassword(password);
-                registerUser.setOldUser(false);
-                //注册信息注入SharedPreferences
-                spUtil.addStringRecord("userName", name);
-                spUtil.addIntRecord("loginState", 1);
-                Intent intent = new Intent(context, MainScreen.class);
-                intent.putExtra("InfoFromLogin", "RegisterSuccess");
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("userInfo", registerUser);
-                intent.putExtras(bundle);
-                context.startActivity(intent);//  开始跳转
+                }).start();
+
             }
         });
     }

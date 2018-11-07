@@ -102,7 +102,7 @@ public class MyAdapter extends BaseAdapter {
                         spUtil.updateFoodState(food.getFoodIndex(), 0);
                         currentfood.setFoodState(0);
                     } else {
-                        Toast.makeText(context, "请到已下单菜页面退菜！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "已下单，不可操作！", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -128,7 +128,7 @@ public class MyAdapter extends BaseAdapter {
             foodViewItem.textViewNumFoodOrderView.setText(String.valueOf(food.getFoodNum()));
             foodViewItem.textViewMemoFoodOrderView.setText(food.getMemo());
             //log.info(">>>>>>>>>location:"+location);
-            if(0 == location) { //未下单菜页面，需要删除退订按钮
+            if(1 == location) { //已下单菜页面，需要删除退订按钮
                 foodViewItem.buttonUnsubscribe.setVisibility(View.GONE);
             } else {
                 foodViewItem.buttonUnsubscribe.setOnClickListener(new View.OnClickListener() {

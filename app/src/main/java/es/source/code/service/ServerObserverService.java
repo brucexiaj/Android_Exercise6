@@ -11,6 +11,7 @@ import android.os.Message;
 import android.os.Messenger;
 
 import android.support.annotation.Nullable;
+import android.util.EventLog;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
@@ -23,6 +24,7 @@ import es.source.code.activity.SCOSHelper;
 import es.source.code.util.EventBusMessage;
 import es.source.code.util.ReceiveFoodInfoThread;
 import es.source.code.util.TestMessage;
+import org.greenrobot.eventbus.ThreadMode;
 
 
 public class ServerObserverService extends Service {
@@ -30,28 +32,27 @@ public class ServerObserverService extends Service {
     private Context context = this;
     private Logger log = Logger.getLogger("ServerObserverService");
     private ReceiveFoodInfoThread rfi;
-    private Handler cMessageHandler = new MessageHandler();
-    private Messenger serverMessenger = new Messenger(cMessageHandler);
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-       return serverMessenger.getBinder();
+        //注册EventBus
+        EventBus.getDefault().register(ServerObserverService.this);
+       return null;
     }
 
-
-    class MessageHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            log.info(">>>>>>>>>收到客户端传过来的数据是：" + msg.what);
-            rfi = new ReceiveFoodInfoThread(context, msg.replyTo);
-            if (1 == msg.what) {
-                rfi.start();
-            }
-            if (0 == msg.what) {
-                rfi.stop();
-            }
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void getEventBusMessage(EventBusMessage message) {
+        log.info("使用EventBus从客户端发送过来的内容是：" + message.getIntMessage());
+        rfi = new ReceiveFoodInfoThread(context);
+        if (1 == message.getIntMessage()) {
+            rfi.start();
+        }
+        if (0 == message.getIntMessage()) {
+            rfi.stop();
         }
     }
+
+
 
 }

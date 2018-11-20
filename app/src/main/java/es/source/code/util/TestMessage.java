@@ -1,5 +1,6 @@
 package es.source.code.util;
 
+//这个类好像废弃了
 public class TestMessage {
     private String s;
 
